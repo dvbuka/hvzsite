@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.3df0128c.css",
+    "main.js": "/static/js/main.38f7781f.js",
+    "static/js/787.bcbff4ee.chunk.js": "/static/js/787.bcbff4ee.chunk.js",
+    "static/media/hvzlogo.png": "/static/media/hvzlogo.fe144b7fa1ee8352c2da.png",
+    "index.html": "/index.html",
+    "main.3df0128c.css.map": "/static/css/main.3df0128c.css.map",
+    "main.38f7781f.js.map": "/static/js/main.38f7781f.js.map",
+    "787.bcbff4ee.chunk.js.map": "/static/js/787.bcbff4ee.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3df0128c.css",
+    "static/js/main.38f7781f.js"
+  ]
+}
