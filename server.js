@@ -21,6 +21,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname+'/frontend/build/index.html'));
   });
 
-app.listen(3001, function() {
+app.listen(process.env.PORT || 3001, function() {
     console.log("express server is running on port 3001");
 })
