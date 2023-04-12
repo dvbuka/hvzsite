@@ -1,3 +1,3 @@
-# HVZ SITE!
+# Davis HvZ Website
 
-by dasha :)
+Run: `node server.js`
