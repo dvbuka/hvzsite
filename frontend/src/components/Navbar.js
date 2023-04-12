@@ -2,7 +2,6 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import logo from '../nobg.png';
-
 function MyNavbar() {
     return (
         <>
@@ -22,9 +21,10 @@ function MyNavbar() {
                         <Nav.Link href="/participate">Participate</Nav.Link>
                         <Nav.Link href="/leaderboard">Leaderboard</Nav.Link>
                         <Nav.Link href="/report">Report an Infection</Nav.Link>
+                        <Nav.Link href="/dnc" align="right">Davis Nerf Club</Nav.Link>
+
                     </Nav>
                     <Nav className="justify-content-end">
-                        <Nav.Link href="/dnc" align="right">Davis Nerf Club</Nav.Link>
                     </Nav>
                 </Container>
             </Navbar>

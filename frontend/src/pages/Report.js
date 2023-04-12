@@ -1,11 +1,11 @@
 import { React, useEffect, useState } from "react";
 import { Card, Form, Button } from "react-bootstrap";
+import axios from "axios";
 
 function Report() {
-
     const [inputs, setInputs] = useState({
-        zombieName: '',
-        humanName: ''
+        zombieId: '-1',
+        humanId: '0'
     })
 
     const [players, setPlayers] = useState([{
@@ -13,26 +13,36 @@ function Report() {
         numtags: 0
     }])
 
+    const [submitInfo, setInfo] = useState("")
+
     useEffect(() => {
-        fetch("/api/leaderboard").then(res => {
-            if (res.ok) {
-                return res.json()
-            }
-            return [{
-                name: '',
-                numtags: 0
-            }]
+    fetch("/api/players").then(res => {
+        if (res.ok) {
+            return res.json()
+        }
+        return [{
+            name: '',
+            numtags: 0
+        }]
         }).then(res => setPlayers(res));
-    })
+    }, []);
 
-    const handleChange = (e) => {
-        setInputs({ ...inputs, [e.target.name]: e.target.value });
+    let handleChange = (e) => {
+        setInfo("");
+        setInputs(prevInput => {return { ...prevInput, [e.target.name]: e.target.value }})
     }
 
-    function onSubmit() {
-        //let zombie = ReactDOM.findDOMNode("reportZombieName");
-        console.log("submission: " + inputs.zombieName + " " + inputs.humanName);
-    }
+    const onSubmit = (e) => {
+        setInfo(prevInput => {return ""});
+        e.preventDefault();
+        if(inputs.zombieId != '0' && inputs.humanId != '0'){
+            axios.post("/api/tag", inputs).then(res => console.log("sent!"))
+            setInfo(prevInput => {return "Submit worked!"});
+        }
+        else{
+            setInfo(prevInput => {return "Submit failed! Make sure you select a human that was tagged!"});
+        }
+    };
 
     return (
         <Card>
@@ -42,17 +52,18 @@ function Report() {
                 <Form>
                     <Form.Group className="mb-3">
                         <Form.Label>Zombie name</Form.Label>
-                        <Form.Select name="zombieName" onChange={handleChange}>
-                            <option _id={0}>Unknown</option>
+                        <Form.Select name="zombieId" onChange={handleChange}>
+                            <option value={'-1'}>Unknown</option>
                             {players.map((player, index) => (
-                                <option key={index} _id={player._id}>{player.name}</option>))}
+                                <option key={index} value={player._id}>{player.name}</option>))}
                         </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Human name</Form.Label>
-                        <Form.Select name="humanName" onChange={handleChange}>
+                        <Form.Select name="humanId" onChange={handleChange}>
+                            <option value={'0'}>Select Human</option>
                             {players.map((player, index) => (
-                                <option key={index} _id={player._id}>{player.name}</option>))}
+                                <option key={index} value={player._id}>{player.name}</option>))}
                         </Form.Select>
                     </Form.Group>
                     <Button variant="primary" type="submit" onClick={onSubmit}>
@@ -60,6 +71,7 @@ function Report() {
                     </Button>
                 </Form>
             </Card.Body>
+            <Card.Body variant="warning">{submitInfo}</Card.Body>
         </Card>
     );
 }
