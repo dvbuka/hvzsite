@@ -1,7 +1,7 @@
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import logo from '../nobg.png';
+import logo from '../images/nobg.png';
 function MyNavbar() {
     return (
         <>
@@ -17,7 +17,7 @@ function MyNavbar() {
                         Davis HvZ
                     </Navbar.Brand>
                     <Nav className="me-auto">
-                        <Nav.Link href="/about">What is Hvz?</Nav.Link>
+                        <Nav.Link href="/about">What is HvZ?</Nav.Link>
                         <Nav.Link href="/participate">Participate</Nav.Link>
                         <Nav.Link href="/leaderboard">Leaderboard</Nav.Link>
                         <Nav.Link href="/report">Report an Infection</Nav.Link>

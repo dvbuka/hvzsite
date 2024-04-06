@@ -1,4 +1,9 @@
-import {React, useEffect, useState} from "react";
+// TODO:
+// cache leaderboard into another object internally and call that instead
+// every 5 mins maybe?
+// makes safer and faster
+
+import { React, useEffect, useState } from "react";
 import { Card, Table } from "react-bootstrap";
 
 function Leaderboard() {
@@ -13,7 +18,7 @@ function Leaderboard() {
 
     useEffect(() => {
         fetch("/api/leaderboard").then(res => {
-            if(res.ok) {
+            if (res.ok) {
                 return res.json()
             }
             return [{
@@ -22,7 +27,7 @@ function Leaderboard() {
             }]
         }).then(jsonRes => setZombies(jsonRes));
         fetch("/api/players").then(res => {
-            if(res.ok) {
+            if (res.ok) {
                 return res.json()
             }
             return [{
@@ -34,7 +39,7 @@ function Leaderboard() {
     return (
         <>
             <Card>
-                <Card.Header as="h1">Zombie Leadeboard</Card.Header>
+                <Card.Header as="h1">Zombie Leaderboard</Card.Header>
                 <Card.Body>
                     <Card.Text>Hidden zombies will not show here until they're exposed.</Card.Text>
                 </Card.Body>
@@ -49,14 +54,14 @@ function Leaderboard() {
                         </thead>
                         <tbody>
                             {
-                            zombies.map((zombie, index) =>
-                            <>
-                             <tr>
-                                <td>{index + 1}</td>
-                                <td>{zombie.name}</td>
-                                <td>{zombie.numtags}</td>
-                            </tr>
-                            </>
+                                zombies.map((zombie, index) =>
+                                    <>
+                                        <tr>
+                                            <td>{index + 1}</td>
+                                            <td><a href={"profile/" + zombie.userID}>{zombie.name}</a></td>
+                                            <td>{zombie.numtags}</td>
+                                        </tr>
+                                    </>
                                 )}
                             <tr>
                             </tr>
@@ -65,7 +70,7 @@ function Leaderboard() {
                 </Card.Body>
             </Card>
             <Card>
-            <Card.Header as="h1">Player List</Card.Header>
+                <Card.Header as="h1">Player List</Card.Header>
                 <Card.Body>
                     <Table striped bordered hover variant="dark">
                         <thead>
@@ -76,19 +81,19 @@ function Leaderboard() {
                         </thead>
                         <tbody>
                             {
-                            players.map((player, index) =>
-                            <>
-                             <tr>
-                                <td>{index + 1}</td>
-                                <td>{player.name}</td>
-                            </tr>
-                            </>
+                                players.map((player, index) =>
+                                    <>
+                                        <tr>
+                                            <td>{index + 1}</td>
+                                            <td><a href={"profile/" + player.userID}>{player.name}</a></td>
+                                        </tr>
+                                    </>
                                 )}
                             <tr>
                             </tr>
                         </tbody>
                     </Table>
-                    </Card.Body>
+                </Card.Body>
             </Card>
         </>
     );

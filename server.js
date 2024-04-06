@@ -12,9 +12,20 @@ require('dotenv').config()
 let dev = false;
 
 // connect to mongoose
-mongoose.connect(process.env.MONGODB_SRV)
+mongoose.set('debug', true)
+mongoose.connect(process.env.MONGODB_SRV, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('Connected to the database!');
+}).catch((err) => {
+  console.log(err);
+})
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use("/api" , require("./routes/profileRoute.js"));
+app.use("/auth" , require("./routes/authRoute.js"));
 
 if(!dev) {
 app.use(express.static("public"));
@@ -25,6 +36,7 @@ app.get('*', (req, res) => {
   });
 }
 
-app.listen(process.env.PORT || 3001, function() {
-    console.log("express server is running on port 3001");
+port = process.env.PORT || 3001
+app.listen(port, function() {
+    console.log("express server is running on port " + port);
 })

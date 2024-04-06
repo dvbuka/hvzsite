@@ -2834,9 +2834,11 @@ textarea.form-control-lg {
   line-height: var(--bs-btn-line-height);
   color: var(--bs-btn-color);
   text-align: center;
+  align-self: center;
   text-decoration: none;
   vertical-align: middle;
   cursor: pointer;
+  margin: 1px;
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;

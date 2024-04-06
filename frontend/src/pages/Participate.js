@@ -1,7 +1,5 @@
 import { React, useState, useEffect } from "react";
 import { Card } from "react-bootstrap";
-import { Form, Button } from "react-bootstrap";
-import axios from 'axios';
 function Participate() {
     return <>
         <Card>
@@ -20,8 +18,6 @@ function Participate() {
 }
 
 export default Participate;
-
-
 
 /*
 const [taken, setTaken] = useState([{
