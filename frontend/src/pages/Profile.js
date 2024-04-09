@@ -3,10 +3,13 @@ import { Container, Row, Col, Card, Image } from "react-bootstrap";
 import default_avatar from '../images/default_avatar.jpeg';
 import { useParams, useNavigate } from 'react-router-dom';
 
+let humanIcon = "https://img.icons8.com/?size=200&id=ADXitnGEnot3&format=png"
+let zombieIcon = "https://img.icons8.com/?size=200&id=5jwkLPvvOsVu&format=png"
+
 function Profile() {
 
     let params = useParams();
-    
+
     let navigate = useNavigate();
 
     const [info, setInfo] = useState({
@@ -35,7 +38,7 @@ function Profile() {
                 <Row justify-content="center" width="100%" display="flex" margin="0 auto">
                     <Col></Col>
                     <Col>
-                        <Image src={default_avatar} roundedCircle width='200px' height='auto' />
+                        <Image src={info.status == "Human" ? humanIcon : zombieIcon} roundedCircle width='200px' height='auto' />
                     </Col>
                     <Col>
                         <Card.Body>Current Status: {info.status}</Card.Body>
