@@ -101,11 +101,6 @@ const Account = ({ discordAuth }) => {
                         <Form.Label>New Name</Form.Label>
                         <Form.Control name="newName" onChange={handleChange} placeholder="Current" disabled={!user} />
                     </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Update profile picture</Form.Label>
-                        <Image src={'https://cdn.discordapp.com/avatars/' + sessionStorage.getItem("id") + '/' + sessionStorage.getItem("avatar")} roundedCircle width='200px' height='auto' />
-                        <Form.Control type="file" />
-                    </Form.Group>
                     <Button variant="primary" type="submit" onClick={onSubmit} disabled={!user}>
                         Submit
                     </Button>
@@ -117,3 +112,11 @@ const Account = ({ discordAuth }) => {
 }
 
 export default Account;
+
+/*
+                    <Form.Group className="mb-3">
+                        <Form.Label>Update profile picture</Form.Label>
+                        <Image src={'https://cdn.discordapp.com/avatars/' + sessionStorage.getItem("id") + '/' + sessionStorage.getItem("avatar")} roundedCircle width='200px' height='auto' />
+                        <Form.Control type="file" />
+                    </Form.Group>
+*/
