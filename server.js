@@ -24,19 +24,19 @@ mongoose.connect(process.env.MONGODB_SRV, {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use("/api" , require("./routes/profileRoute.js"));
-app.use("/auth" , require("./routes/authRoute.js"));
+app.use("/api", require("./routes/profileRoute.js"));
+app.use("/auth", require("./routes/authRoute.js"));
 
-if(!dev) {
-app.use(express.static("public"));
-app.use(express.static(path.join(__dirname, 'frontend/build')));
+if (!dev) {
+  app.use(express.static("public"));
+  app.use(express.static(path.join(__dirname, 'frontend/build')));
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname+'/frontend/build/index.html'));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname + '/frontend/build/index.html'));
   });
 }
 
 port = process.env.PORT || 3001
-app.listen(port, function() {
-    console.log("express server is running on port " + port);
+app.listen(port, function () {
+  console.log("express server is running on port " + port);
 })
