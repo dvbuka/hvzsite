@@ -34,19 +34,21 @@ const Account = ({ discordAuth }) => {
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
-            }).then(axios.post("/api/identifyuser", {
-                access_token: sessionStorage.getItem("access_token"),
-                expires_in: sessionStorage.getItem("expires_in"),
-                refresh_token: sessionStorage.getItem("refresh_token")
+                return res
+            }).then(res => axios.post("/api/identifyuser",{
+                access_token: res.headers.access_token,
+                expires_in: res.headers.expires_in,
+                refresh_token: res.headers.refresh_token
             })).then(res => {
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
                 sessionStorage.setItem("username", res.headers.username)
                 sessionStorage.setItem("avatar", res.headers.avatar)
+                sessionStorage.setItem("id", res.headers.id)
                 setUser(res.headers.username)
+                navigate('/account')
             })
-            navigate('/account');
         }
 
         let username = sessionStorage.getItem("username")
@@ -77,6 +79,7 @@ const Account = ({ discordAuth }) => {
         else {
             setInfo("Submit failed! Make sure to log in.");
         }
+        window.location.reload()
         navigate('/account');
         setInputs(defaultInputs)
     };
@@ -100,7 +103,7 @@ const Account = ({ discordAuth }) => {
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Update profile picture</Form.Label>
-                        <Image src={"https://cdn.discordapp.com/avatars/825504240658415637/30b325dee66f05b85a3be97da6465468?size=1024"} roundedCircle width='200px' height='auto' />
+                        <Image src={'https://cdn.discordapp.com/avatars/' + sessionStorage.getItem("id") + '/' + sessionStorage.getItem("avatar")} roundedCircle width='200px' height='auto' />
                         <Form.Control type="file" />
                     </Form.Group>
                     <Button variant="primary" type="submit" onClick={onSubmit} disabled={!user}>

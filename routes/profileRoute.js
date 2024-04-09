@@ -11,9 +11,9 @@ const Discord = require('discord.js');
 const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"] });
 const guildIDs = {
     zombieRole: "968258177013542993",
-    zombieChannel: "1157145946279383052",
+    zombieChannel: "1222456449763115008",
     humanRole: "968420862900441108",
-    humanChannel: "1157145873210417203"
+    humanChannel: "1222456229239062528"
 }
 let guild = null;
 let updateChannel = null
@@ -26,14 +26,27 @@ client.once('ready', () => {
 
 client.login(process.env.DISCORD_TOKEN);
 
-function updateRole(role, playerID) {
-    if (role == "Human") {
-        guild.members.fetch(playerID).roles.add(guildIDs.humanRole);
-        guild.members.fetch(playerID).roles.remove(guildIDs.zombieRole);
+async function updateRole(role, playerID) {
+    try {
+        let playerAcct = await guild.members.fetch(playerID);
 
-    } else if (role == "Zombie") {
-        guild.members.fetch(playerID).roles.add(guildIDs.zombieRole);
-        guild.members.fetch(playerID).roles.remove(guildIDs.humanRole);
+        /* guild.channels.resolve(guildIDs.zombieChannel).permissionOverwrites.create(playerAcct, {
+            VIEW_CHANNEL: false});
+           guild.channels.resolve(guildIDs.zombieChannel).permissionOverwrites.create(playerAcct, {
+            VIEW_CHANNEL: false}); */
+
+        if (role == "Human") {
+            playerAcct.roles.add(guildIDs.humanRole);
+            playerAcct.roles.remove(guildIDs.zombieRole);
+        } else if (role == "Zombie") {
+            playerAcct.roles.add(guildIDs.zombieRole);
+            playerAcct.roles.remove(guildIDs.humanRole);
+        } else if (role == "Unregistered") {
+            playerAcct.roles.remove(guildIDs.humanRole);
+            playerAcct.roles.remove(guildIDs.zombieRole);
+        }
+    } catch {
+        console.log("Discord role change did not work.")
     }
 }
 
@@ -82,10 +95,11 @@ router.route("/identifyuser").post(async (req, res) => {
         headers: { 'Authorization': `Bearer ${req.body.access_token}` }
     });
     let response = await site.json();
-    console.log(response)
+    console.log("response", response)
 
     res.append("username", response.username);
     res.append("avatar", response.avatar);
+    res.append("id", response.id);
 
     // Refresh tokens
     const params = new URLSearchParams();
@@ -175,7 +189,7 @@ router.route("/tag").post(async (req, res) => {
         /* Make the human zombie */
         let human = await profile.findOne({ name: req.body.humanId })
         await profile.updateOne({ name: req.body.humanId }, { $set: { role: "Zombie", tagged: true, exposed: true } });
-        updateRole("Human", human.userID)
+        await updateRole("Zombie", human.userID)
 
         /* Update zombie tags */
         if (req.body.zombieId != null) {
@@ -184,7 +198,7 @@ router.route("/tag").post(async (req, res) => {
                 await profile.updateOne({ name: tagger.name }, { $set: { numtags: (tagger.numtags + 1) } });
             }
         }
-        sendUpdate(req.body.humanId + " was turned into a Zombie!")
+        sendUpdate(req.body.humanId + ` was turned into a Zombie${req.body.zombieId == null ? "!" : ` by ${req.body.zombieId}.`}`)
         res.end("Submit worked!");
     }
     catch {
@@ -207,7 +221,6 @@ router.route("/update").post(async (req, res) => {
             let player = await profile.findOne({ name: req.body.player })
             await profile.updateOne({ name: req.body.player }, { $set: { role: req.body.newRole } });
             updateRole(role.body.newRole, player.userID)
-
         }
 
         /* Update name */
@@ -235,16 +248,25 @@ router.route("/userupdate").post(async (req, res) => {
         /* Check if the user is authorized to make this tag (mod or zombie). */
         if (reporter == null) {
             res.end("Unauthorized!");
+            return; // Do not update
         }
 
         /* Update name if need */
         if (req.body.newName != null) {
+            let f = await profile.findOne({ name: req.body.newName })
+
+            if (f != null) {
+                res.end("Name already in use.");
+                return;
+            }
             await profile.updateOne({ userID: response.id }, { $set: { name: req.body.newName } });
         }
 
         if (req.body.registerMe != null) {
-            if (reporter.role == "Unregistered")
+            if (reporter.role == "Unregistered") {
                 await profile.updateOne({ userID: response.id }, { $set: { role: "Registered" } });
+                updateRole("Human", response.id)
+            }
         }
 
         if (req.body.newAvatar != null) {

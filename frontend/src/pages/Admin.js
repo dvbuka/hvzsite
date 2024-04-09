@@ -11,7 +11,8 @@ const Admin = ({discordAuth}) => {
         player: null,
         newName: null,
         newRole: null,
-        newTags: null
+        newTags: null,
+        newMod: null
     }
     const [inputs, setInputs] = useState({defaultInputs})
 
@@ -45,6 +46,7 @@ const Admin = ({discordAuth}) => {
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
                 sessionStorage.setItem("username", res.headers.username)
                 sessionStorage.setItem("avatar", res.headers.avatar)
+                sessionStorage.setItem("id", res.headers.id)
                 setUser(res.headers.username)
                 console.log(res.headers.username)
                 navigate('/admin')
@@ -53,6 +55,8 @@ const Admin = ({discordAuth}) => {
         let username = sessionStorage.getItem("username")
         if(username != null)
             setUser(username)
+        if (username == undefined)
+            setUser(false)
 
         fetch("/api/users").then(res => {
             if (res.ok) {
@@ -89,6 +93,7 @@ const Admin = ({discordAuth}) => {
             setInfo("Submit failed! Make sure you select a valid player.");
         }
 
+        window.location.reload()
         navigate('/admin');
         setInputs(defaultInputs)
     };
@@ -128,6 +133,9 @@ const Admin = ({discordAuth}) => {
                     <Form.Group className="mb-3">
                         <Form.Label>Tags</Form.Label>
                         <Form.Control name="newTags" placeholder="Current" disabled={!user}/>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Check name="newMod" type="switch" id="custom-switch" label="Make moderator" value={inputs.newMod} onChange={handleChange}/>
                     </Form.Group>
                     <Button variant="primary" type="submit" onClick={onSubmit} disabled={!user}>
                         Submit

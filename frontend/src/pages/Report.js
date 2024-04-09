@@ -24,14 +24,13 @@ const Report = ({ discordAuth }) => {
     const [submitInfo, setInfo] = useState("")
 
     useEffect(() => {
+
+
+
         let queryParameters = new URLSearchParams(window.location.search)
         let code = queryParameters.get("code")
-
+        
         if (code != null) {
-            //setUser("Signed in as: " + code)
-            //sessionStorage.setItem("auth_code", code);
-            //setInputs({ authCode: code })
-
             console.log(code)
             axios.post("/api/tradecode", { "authCode": code , "redirect_tail": 'report'}).then(res => {
                 console.log(res)
@@ -39,25 +38,28 @@ const Report = ({ discordAuth }) => {
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
                 console.log(sessionStorage.getItem("access_token"))
-            }).then(axios.post("/api/identifyuser", {
-                access_token: sessionStorage.getItem("access_token"),
-                expires_in: sessionStorage.getItem("expires_in"),
-                refresh_token: sessionStorage.getItem("refresh_token")
+                return res
+            }).then(res => axios.post("/api/identifyuser",{
+                access_token: res.headers.access_token,
+                expires_in: res.headers.expires_in,
+                refresh_token: res.headers.refresh_token
             })).then(res => {
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
                 sessionStorage.setItem("username", res.headers.username)
                 sessionStorage.setItem("avatar", res.headers.avatar)
+                sessionStorage.setItem("id", res.headers.id)
                 setUser(res.headers.username)
                 console.log(res.headers.username)
-            })
-            navigate('/report');
-        }
+                navigate('/report')
+            })}
 
         let username = sessionStorage.getItem("username")
         if(username != null)
             setUser(username)
+        if (username == undefined)
+            setUser(false)
 
         fetch("/api/players").then(res => {
             if (res.ok) {
@@ -86,10 +88,10 @@ const Report = ({ discordAuth }) => {
                 zombieID: inputs.zombieId,
                 humanId: inputs.humanId
             }).then(res => {
-                setInfo(res.data)
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
+                setInfo(res.data)
             })
         }
         else {

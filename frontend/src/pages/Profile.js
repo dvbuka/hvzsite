@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 function Profile() {
 
     let params = useParams();
+    
     let navigate = useNavigate();
 
     const [info, setInfo] = useState({
@@ -23,7 +24,7 @@ function Profile() {
             }
         }).then(res => {console.log(res)
             if (res != null)
-                setInfo({ player: res.name, status: res.role, tags: res.numtags, lifetime: 0, achievements: "None"})
+                setInfo({ player: res.name, status: res.role, tags: res.numtags, lifetime: res.lifetime, achievements: "None"})
             else {
                navigate('/404')}})
     }, []);

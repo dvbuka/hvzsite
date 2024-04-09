@@ -7,7 +7,10 @@ const profileSchema = new mongoose.Schema({
     tagged: { type: Boolean, default: false },
     exposed: { type: Boolean, default: false },
     numtags: { type: Number, default: 0 },
-    mod: { type: Boolean, default: false }
+    mod: { type: Boolean, default: false },
+    lifetime: { type: Number, default: 0 },
+    achievements: { type: Array, default: {} },
+
 });
 
 const model = mongoose.model("ProfileModes", profileSchema);
