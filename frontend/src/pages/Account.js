@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import default_avatar from '../images/default_avatar.jpeg';
 
+axios.defaults.baseURL = process.env.REACT_APP_API_BASE
+
 const Account = ({ discordAuth }) => {
 
     let navigate = useNavigate();
@@ -29,6 +31,7 @@ const Account = ({ discordAuth }) => {
         const code = queryParameters.get("code")
 
         if (code != null) {
+            navigate('/account')
             axios.post("/api/tradecode", { "authCode": code, "redirect_tail": 'account' }).then(res => {
                 console.log(res)
                 sessionStorage.setItem("access_token", res.headers.access_token)
@@ -47,7 +50,6 @@ const Account = ({ discordAuth }) => {
                 sessionStorage.setItem("avatar", res.headers.avatar)
                 sessionStorage.setItem("id", res.headers.id)
                 setUser(res.headers.username)
-                navigate('/account')
             })
         }
 

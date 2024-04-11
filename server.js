@@ -7,6 +7,12 @@ const mongoose = require("mongoose");
 app.use(cors());
 app.use(express.json());
 
+const corsOptions = {
+  exposedHeaders: ['access_token', 'expires_in', 'refresh_token', 'username', 'avatar']
+};
+
+app.use(cors(corsOptions));
+
 require('dotenv').config()
 
 let dev = false;
@@ -27,14 +33,14 @@ app.use(express.json());
 app.use("/api", require("./routes/profileRoute.js"));
 app.use("/auth", require("./routes/authRoute.js"));
 
-if (!dev) {
+if (process.env.DEPLOY_TYPE == "LOCAL" ) {
   app.use(express.static("public"));
   app.use(express.static(path.join(__dirname, 'frontend/build')));
 
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname + '/frontend/build/index.html'));
   });
-}
+} 
 
 port = process.env.PORT || 3001
 app.listen(port, function () {

@@ -21,7 +21,7 @@ function Profile() {
     })
 
     useEffect(() => {
-        fetch("/api/player/" + params.user).then(res => {
+        fetch(process.env.REACT_APP_API_BASE + "/api/player/" + params.user).then(res => {
             if (res.ok) {
                 return res.json()
             }

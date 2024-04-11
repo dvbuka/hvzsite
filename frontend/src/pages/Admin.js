@@ -3,6 +3,8 @@ import { Card, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+axios.defaults.baseURL = process.env.REACT_APP_API_BASE
+
 const Admin = ({discordAuth}) => {
 
     let navigate = useNavigate();
@@ -30,6 +32,7 @@ const Admin = ({discordAuth}) => {
         const code = queryParameters.get("code")
 
         if (code != null) {
+            navigate('/admin')
             axios.post("/api/tradecode", { authCode: code, redirect_tail: "admin" }).then(res => {
                 console.log("res tradecode", res)
                 sessionStorage.setItem("access_token", res.headers.access_token)
@@ -49,16 +52,15 @@ const Admin = ({discordAuth}) => {
                 sessionStorage.setItem("id", res.headers.id)
                 setUser(res.headers.username)
                 console.log(res.headers.username)
-                navigate('/admin')
             })}
 
         let username = sessionStorage.getItem("username")
         if(username != null)
             setUser(username)
-        if (username == undefined)
+        if (username == "undefined")
             setUser(false)
 
-        fetch("/api/users").then(res => {
+        fetch(process.env.REACT_APP_API_BASE + "/api/users").then(res => {
             if (res.ok) {
                 return res.json()
             }
@@ -78,7 +80,6 @@ const Admin = ({discordAuth}) => {
         e.preventDefault();
         
         if (inputs.player != null && sessionStorage.getItem("access_token")) {
-            navigate('/admin');
             axios.post("/api/update", {
                 access_token: sessionStorage.getItem("access_token"),
                 expires_in: sessionStorage.getItem("expires_in"),
@@ -88,13 +89,14 @@ const Admin = ({discordAuth}) => {
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
             })
+            navigate('/admin');
         }
         else {
+            navigate('/admin');
             setInfo("Submit failed! Make sure you select a valid player.");
         }
 
         window.location.reload()
-        navigate('/admin');
         setInputs(defaultInputs)
     };
 

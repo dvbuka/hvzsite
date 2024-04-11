@@ -27,6 +27,7 @@ client.once('ready', () => {
 client.login(process.env.DISCORD_TOKEN);
 
 async function updateRole(role, playerID) {
+    console.log("Update:", role, playerID)
     try {
         let playerAcct = await guild.members.fetch(playerID);
 
@@ -61,7 +62,9 @@ async function tradeCode(authCode, redirect_tail) {
     params.append('client_secret', process.env.CLIENT_SECRET);
     params.append('grant_type', 'authorization_code');
     params.append('code', authCode);
-    params.append('redirect_uri', process.env.REDIRECT_URI + redirect_tail);
+    let redirect_uri = process.env.REDIRECT_URI + redirect_tail
+    console.log(redirect_uri)
+    params.append('redirect_uri', redirect_uri);
     params.append('scope', 'identify');
 
     let site = await fetch("https://discord.com/api/oauth2/token", {
@@ -75,8 +78,9 @@ async function tradeCode(authCode, redirect_tail) {
     return response;
 }
 
-router.route("/tradecode").post(async (req, res) => {
-    console.log(req.body.authCode)
+router.route('/tradecode').post(async (req, res) => {
+    console.log("origin auth code:", req.body.authCode)
+
     let response = await tradeCode(req.body.authCode, req.body.redirect_tail)
     res.append("access_token", response["access_token"]);
     res.append("expires_in", response["expires_in"]);

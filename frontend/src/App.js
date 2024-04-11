@@ -15,8 +15,8 @@ import Account from './pages/Account.js';
 import Page404 from './pages/404.js';
 
 function App() {
-  let client_id="1130626687357431849" //process.env.REACT_APP_CLIENT_ID
-  let redirect_head="https://davishvz.vercel.app/" //process.env.REACT_APP_REDIRECT_URI
+  let client_id=process.env.REACT_APP_CLIENT_ID
+  let redirect_head=process.env.REACT_APP_REDIRECT_URI
   function gen_auth_link(redirect_tail) {
     return `https://discord.com/oauth2/authorize?client_id=${client_id}&response_type=code&redirect_uri=${redirect_head}${redirect_tail}&scope=identify`
   }

@@ -17,7 +17,7 @@ function Leaderboard() {
     }]);
 
     useEffect(() => {
-        fetch("/api/leaderboard").then(res => {
+        fetch(process.env.REACT_APP_API_BASE + "/api/leaderboard").then(res => {
             if (res.ok) {
                 return res.json()
             }
@@ -26,7 +26,7 @@ function Leaderboard() {
                 numtags: 0
             }]
         }).then(jsonRes => setZombies(jsonRes));
-        fetch("/api/players").then(res => {
+        fetch(process.env.REACT_APP_API_BASE + "/api/players").then(res => {
             if (res.ok) {
                 return res.json()
             }

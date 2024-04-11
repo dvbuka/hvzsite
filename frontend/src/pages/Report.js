@@ -5,6 +5,8 @@ import axios from "axios";
 
 const Report = ({ discordAuth }) => {
 
+    axios.defaults.baseURL = process.env.REACT_APP_API_BASE
+
     let navigate = useNavigate();
 
     let defaultInputs = {
@@ -23,23 +25,18 @@ const Report = ({ discordAuth }) => {
 
     const [submitInfo, setInfo] = useState("")
 
-    useEffect(() => {
-
-
-
+    async function update() {
         let queryParameters = new URLSearchParams(window.location.search)
         let code = queryParameters.get("code")
-        
+
         if (code != null) {
-            console.log(code)
-            axios.post("/api/tradecode", { "authCode": code , "redirect_tail": 'report'}).then(res => {
-                console.log(res)
+            navigate('/report')
+            await axios.post("/api/tradecode", { "authCode": code, "redirect_tail": 'report' }).then(res => {
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
-                console.log(sessionStorage.getItem("access_token"))
                 return res
-            }).then(res => axios.post("/api/identifyuser",{
+            }).then(res => axios.post("/api/identifyuser", {
                 access_token: res.headers.access_token,
                 expires_in: res.headers.expires_in,
                 refresh_token: res.headers.refresh_token
@@ -52,16 +49,18 @@ const Report = ({ discordAuth }) => {
                 sessionStorage.setItem("id", res.headers.id)
                 setUser(res.headers.username)
                 console.log(res.headers.username)
-                navigate('/report')
-            })}
+            })
+        }
 
         let username = sessionStorage.getItem("username")
-        if(username != null)
+
+        if (username != null)
             setUser(username)
-        if (username == undefined)
+        
+        if (username == "undefined" || username == null)
             setUser(false)
 
-        fetch("/api/players").then(res => {
+        fetch(process.env.REACT_APP_API_BASE + "/api/players").then(res => {
             if (res.ok) {
                 return res.json()
             }
@@ -70,6 +69,9 @@ const Report = ({ discordAuth }) => {
                 numtags: 0
             }]
         }).then(res => setPlayers(res));
+    }
+    useEffect(() => {
+        update();
     }, []);
 
     let handleChange = (e) => {
@@ -95,6 +97,7 @@ const Report = ({ discordAuth }) => {
             })
         }
         else {
+            window.location.reload()
             setInfo("Submit failed! Make sure to list a zombie, player, and to log in.");
         }
         setInputs(defaultInputs)

@@ -6,22 +6,23 @@ import discord from "../images/discord.png";
 function Home() {
     const [info, setInfo] = useState({ registered: 0, humans: 0, zombies: 0 })
 
-    useEffect(async () => {
+    async function update() {
         let newInfo = { registered: 0, humans: 0, zombies: 0 };
 
-        await fetch("/api/totzombies").then(res => {
+        await fetch(process.env.REACT_APP_API_BASE + "/api/totzombies").then(res => {
             if (res.ok) {
                 return res.json()
             }
+            console.log(res.json())
         }).then(jsonRes => newInfo.zombies = jsonRes.length);
 
-        await fetch("/api/tothumans").then(res => {
+        await fetch(process.env.REACT_APP_API_BASE + "/api/tothumans").then(res => {
             if (res.ok) {
                 return res.json()
             }
         }).then(jsonRes => newInfo.humans = jsonRes.length);
 
-        await fetch("/api/players").then(res => {
+        await fetch(process.env.REACT_APP_API_BASE + "/api/players").then(res => {
             if (res.ok) {
                 return res.json()
             }
@@ -29,7 +30,10 @@ function Home() {
 
         console.log(newInfo);
         setInfo(newInfo);
-
+        console.log(info)
+    }
+    useEffect(() => {
+        update();
     }, []);
 
     return (
