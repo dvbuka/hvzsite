@@ -1,12 +1,10 @@
-// TODO:
-// page with options to change player name
-// also add a profile picture, use discord avatar by default
-
-import { React, useEffect, useState } from "react";
-import { Card, Form, Button, Image } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+// TODO: add a profile picture, use discord avatar by default
 import axios from "axios";
-import default_avatar from '../images/default_avatar.jpeg';
+import { Button, Card, Form, Image } from "react-bootstrap";
+import { React, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const utils = require('../api_utils.js');
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE
 
@@ -16,7 +14,7 @@ const Account = ({ discordAuth }) => {
 
     let defaultInputs = {
         newName: null,
-        registerMe: null,
+        isRegistering: null,
         newAvatar: null,
     }
 
@@ -27,35 +25,24 @@ const Account = ({ discordAuth }) => {
     const [submitInfo, setInfo] = useState("")
 
     useEffect(() => {
-        const queryParameters = new URLSearchParams(window.location.search)
-        const code = queryParameters.get("code")
+        async function update() {
+            const queryParameters = new URLSearchParams(window.location.search)
+            const code = queryParameters.get("code")
 
-        if (code != null) {
-            navigate('/account')
-            axios.post("/api/tradecode", { "authCode": code, "redirect_tail": 'account' }).then(res => {
-                console.log(res)
-                sessionStorage.setItem("access_token", res.headers.access_token)
-                sessionStorage.setItem("expires_in", res.headers.expires_in)
-                sessionStorage.setItem("refresh_token", res.headers.refresh_token)
-                return res
-            }).then(res => axios.post("/api/identifyuser",{
-                access_token: res.headers.access_token,
-                expires_in: res.headers.expires_in,
-                refresh_token: res.headers.refresh_token
-            })).then(res => {
-                sessionStorage.setItem("access_token", res.headers.access_token)
-                sessionStorage.setItem("expires_in", res.headers.expires_in)
-                sessionStorage.setItem("refresh_token", res.headers.refresh_token)
-                sessionStorage.setItem("username", res.headers.username)
-                sessionStorage.setItem("avatar", res.headers.avatar)
-                sessionStorage.setItem("id", res.headers.id)
-                setUser(res.headers.username)
-            })
+            if (code != null) {
+                navigate('/account')
+                await utils.trade_code(axios, code, 'account')
+            }
+
+            let username = sessionStorage.getItem("username")
+
+            setUser(false)
+
+            if (username != null && username != undefined)
+                setUser(username)
         }
 
-        let username = sessionStorage.getItem("username")
-        if(username != null)
-            setUser(username)
+        update();
 
     }, []);
 
@@ -69,9 +56,8 @@ const Account = ({ discordAuth }) => {
         if (sessionStorage.getItem("access_token") != null) {
             navigate('/account');
             axios.post("/api/userupdate", {
-                access_token: sessionStorage.getItem("access_token"),
-                expires_in: sessionStorage.getItem("expires_in"),
-                refresh_token: sessionStorage.getItem("refresh_token"),...inputs}).then(res => {
+                ...sessionStorage, ...inputs
+            }).then(res => {
                 setInfo(res.data)
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
@@ -88,11 +74,11 @@ const Account = ({ discordAuth }) => {
 
     return (
         <Card>
-            <Card.Header as="h1">Update profile</Card.Header>
+            <Card.Header as="h3">Update profile</Card.Header>
             <Card.Body>Use this form to update your profile.</Card.Body>
             <Card.Body style={{ width: '300px' }}>
                 <Form>
-                <Form.Group className="mb-3">
+                    <Form.Group className="mb-3">
                         <Form.Label name="userName">Signed in as: {!user ? "Sign in below" : user}</Form.Label>
                         <Button variant="primary" type="submit" href={discordAuth}>{!user ? "Login" : "Logged in"} with Discord</Button>
                     </Form.Group>

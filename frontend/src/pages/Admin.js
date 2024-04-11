@@ -1,12 +1,13 @@
-import { React, useEffect, useState } from "react";
-import { Card, Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Button, Card, Form } from "react-bootstrap";
+import { React, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE
 
-const Admin = ({discordAuth}) => {
+const utils = require('../api_utils.js');
 
+const Admin = ({discordAuth}) => {
     let navigate = useNavigate();
     
     let defaultInputs = {
@@ -14,6 +15,7 @@ const Admin = ({discordAuth}) => {
         newName: null,
         newRole: null,
         newTags: null,
+        newLifetags: null,
         newMod: null
     }
     const [inputs, setInputs] = useState({defaultInputs})
@@ -28,37 +30,22 @@ const Admin = ({discordAuth}) => {
     const [user, setUser] = useState(false)
 
     useEffect(() => {
+        async function update() {
         const queryParameters = new URLSearchParams(window.location.search)
         const code = queryParameters.get("code")
 
         if (code != null) {
+            console.log("fetching user from code...")
             navigate('/admin')
-            axios.post("/api/tradecode", { authCode: code, redirect_tail: "admin" }).then(res => {
-                console.log("res tradecode", res)
-                sessionStorage.setItem("access_token", res.headers.access_token)
-                sessionStorage.setItem("expires_in", res.headers.expires_in)
-                sessionStorage.setItem("refresh_token", res.headers.refresh_token)
-                return res
-            }).then(res => axios.post("/api/identifyuser",{
-                access_token: res.headers.access_token,
-                expires_in: res.headers.expires_in,
-                refresh_token: res.headers.refresh_token
-            })).then(res => {
-                sessionStorage.setItem("access_token", res.headers.access_token)
-                sessionStorage.setItem("expires_in", res.headers.expires_in)
-                sessionStorage.setItem("refresh_token", res.headers.refresh_token)
-                sessionStorage.setItem("username", res.headers.username)
-                sessionStorage.setItem("avatar", res.headers.avatar)
-                sessionStorage.setItem("id", res.headers.id)
-                setUser(res.headers.username)
-                console.log(res.headers.username)
-            })}
+            await utils.trade_code(axios, code, 'admin')}
 
         let username = sessionStorage.getItem("username")
-        if(username != null)
-            setUser(username)
-        if (username == "undefined")
-            setUser(false)
+        
+        setUser(false)
+        
+        if(username != null && username != undefined)
+           setUser(username)
+
 
         fetch(process.env.REACT_APP_API_BASE + "/api/users").then(res => {
             if (res.ok) {
@@ -68,7 +55,9 @@ const Admin = ({discordAuth}) => {
                 name: '',
                 numtags: 0
             }]
-        }).then(res => setPlayers(res));
+        }).then(res => setPlayers(res));}
+
+        update();
     }, []);
 
     let handleChange = (e) => {
@@ -81,22 +70,17 @@ const Admin = ({discordAuth}) => {
         
         if (inputs.player != null && sessionStorage.getItem("access_token")) {
             axios.post("/api/update", {
-                access_token: sessionStorage.getItem("access_token"),
-                expires_in: sessionStorage.getItem("expires_in"),
-                refresh_token: sessionStorage.getItem("refresh_token"),...inputs}).then(res => {
+                ...sessionStorage,...inputs}).then(res => {
                 setInfo(res.data)
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
             })
-            navigate('/admin');
         }
         else {
-            navigate('/admin');
             setInfo("Submit failed! Make sure you select a valid player.");
         }
 
-        window.location.reload()
         setInputs(defaultInputs)
     };
 
@@ -134,7 +118,11 @@ const Admin = ({discordAuth}) => {
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Tags</Form.Label>
-                        <Form.Control name="newTags" placeholder="Current" disabled={!user}/>
+                        <Form.Control name="newTags" onChange={handleChange} placeholder="Current" disabled={!user}/>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Lifetime Tags</Form.Label>
+                        <Form.Control name="newLifetags" onChange={handleChange} placeholder="Current" disabled={!user}/>
                     </Form.Group>
                     <Form.Group>
                         <Form.Check name="newMod" type="switch" id="custom-switch" label="Make moderator" value={inputs.newMod} onChange={handleChange}/>

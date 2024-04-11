@@ -1,13 +1,17 @@
-import { React, useState, useEffect } from "react";
-import { Card } from "react-bootstrap";
+import { React, useEffect, useState } from "react";
+import discord from "../images/discord.png";
+import { Button, Card } from "react-bootstrap";
+
 function Participate() {
     return <>
         <Card>
-            <Card.Header as="h1">Participate</Card.Header>
+            <Card.Header as="h3">Participate</Card.Header>
             <Card.Body>In order to register, please use the Discord bot. This allows you to communicate with your teammates.</Card.Body>
             <Card.Body>Steps:
                 <ol>
-                    <li>Join the Discord!</li>
+                    <li>Join the Discord: <Button style={{padding:"5px"}}variant="outline-light" href="https://discord.gg/HzgCTxwqdQ">
+                         <img src={discord} width="30px" />
+                    </Button></li>
                     <li>Find the commands channel.</li>
                     <li>Type -register [Your name] [Last Initial or name]</li>
                     <li>Check #how-to-register for more information! DM Dasha on Discord if you need more assistance.</li>

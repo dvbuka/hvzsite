@@ -1,7 +1,10 @@
+import { Button, Card, Form } from "react-bootstrap";
 import { React, useEffect, useState } from "react";
-import { Card, Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const utils = require('../api_utils.js');
 
 const Report = ({ discordAuth }) => {
 
@@ -31,36 +34,15 @@ const Report = ({ discordAuth }) => {
 
         if (code != null) {
             navigate('/report')
-            await axios.post("/api/tradecode", { "authCode": code, "redirect_tail": 'report' }).then((res) => {
-                sessionStorage.setItem("access_token", res.headers['access_token'])
-                sessionStorage.setItem("expires_in", res.headers['expires_in'])
-                sessionStorage.setItem("refresh_token", res.headers['refresh_token'])
-                console.log(res.headers['refresh_token'], res.headers['expires_in'])
-                return res
-            })/*.then(res => axios.post("/api/identifyuser", {
-                access_token: res.headers.access_token,
-                expires_in: res.headers.expires_in,
-                refresh_token: res.headers.refresh_token
-            })).then(res => {
-                console.log(res.headers.refresh_token, res.headers.expires_in)
-                sessionStorage.setItem("access_token", res.headers.access_token)
-                sessionStorage.setItem("expires_in", res.headers.expires_in)
-                sessionStorage.setItem("refresh_token", res.headers.refresh_token)
-                sessionStorage.setItem("username", res.headers.username)
-                sessionStorage.setItem("avatar", res.headers.avatar)
-                sessionStorage.setItem("id", res.headers.id)
-                setUser(res.headers.username)
-                console.log(res.headers.username)
-            })*/
+            await utils.trade_code(axios, code, 'report')
         }
 
         let username = sessionStorage.getItem("username")
 
-        if (username != null)
+        setUser(false)
+
+        if (username != undefined && username != null)
             setUser(username)
-        
-        if (username == "undefined" || username == null)
-            setUser(false)
 
         fetch(process.env.REACT_APP_API_BASE + "/api/players").then(res => {
             if (res.ok) {
@@ -86,9 +68,7 @@ const Report = ({ discordAuth }) => {
         if (inputs.humanId != null && sessionStorage.getItem("access_token")) {
             navigate('/report');
             axios.post("/api/tag", {
-                access_token: sessionStorage.getItem("access_token"),
-                expires_in: sessionStorage.getItem("expires_in"),
-                refresh_token: sessionStorage.getItem("refresh_token"),
+                ...sessionStorage,
                 zombieID: inputs.zombieId,
                 humanId: inputs.humanId
             }).then(res => {
@@ -107,7 +87,7 @@ const Report = ({ discordAuth }) => {
 
     return (
         <Card>
-            <Card.Header as="h1">Report an Infection</Card.Header>
+            <Card.Header as="h3">Report an Infection</Card.Header>
             <Card.Body>Use this form to report a confirmed infection.</Card.Body>
             <Card.Body style={{ width: '300px' }}>
                 <Form>

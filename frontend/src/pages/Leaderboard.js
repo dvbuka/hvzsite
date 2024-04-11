@@ -3,8 +3,8 @@
 // every 5 mins maybe?
 // makes safer and faster
 
-import { React, useEffect, useState } from "react";
 import { Card, Table } from "react-bootstrap";
+import { React, useEffect, useState } from "react";
 
 function Leaderboard() {
     const [players, setPlayers] = useState([{
@@ -39,7 +39,7 @@ function Leaderboard() {
     return (
         <>
             <Card>
-                <Card.Header as="h1">Zombie Leaderboard</Card.Header>
+                <Card.Header as="h3">Zombie Leaderboard</Card.Header>
                 <Card.Body>
                     <Card.Text>Hidden zombies will not show here until they're exposed.</Card.Text>
                 </Card.Body>
@@ -70,7 +70,7 @@ function Leaderboard() {
                 </Card.Body>
             </Card>
             <Card>
-                <Card.Header as="h1">Player List</Card.Header>
+                <Card.Header as="h3">Player List</Card.Header>
                 <Card.Body>
                     <Table striped bordered hover variant="dark">
                         <thead>

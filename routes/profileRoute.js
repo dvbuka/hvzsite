@@ -7,7 +7,6 @@ require('dotenv').config()
 
 /* Set up Discord bot for role changes */
 const Discord = require('discord.js');
-//const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"] });
 const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"] });
 const guildIDs = {
     zombieRole: "968258177013542993",
@@ -15,6 +14,7 @@ const guildIDs = {
     humanRole: "968420862900441108",
     humanChannel: "1222456229239062528"
 }
+
 let guild = null;
 let updateChannel = null
 client.once('ready', () => {
@@ -34,7 +34,7 @@ async function updateRole(role, playerID) {
         /* guild.channels.resolve(guildIDs.zombieChannel).permissionOverwrites.create(playerAcct, {
             VIEW_CHANNEL: false});
            guild.channels.resolve(guildIDs.zombieChannel).permissionOverwrites.create(playerAcct, {
-            VIEW_CHANNEL: false}); */
+            VIEW_CHANNEL: false}); */ // for OZs only
 
         if (role == "Human") {
             playerAcct.roles.add(guildIDs.humanRole);
@@ -66,24 +66,21 @@ async function tradeCode(authCode, redirect_tail) {
     console.log(redirect_uri)
     params.append('redirect_uri', redirect_uri);
     params.append('scope', 'identify');
-
     let site = await fetch("https://discord.com/api/oauth2/token", {
         'method': 'POST',
         'body': params,
         'headers':
             { 'Content-type': 'application/x-www-form-urlencoded' },
     })
-
     let response = await site.json();
-    console.log(response)
+    console.log("auth code response: ", response)
     return response;
 }
 
 router.route('/tradecode').post(async (req, res) => {
     console.log("origin auth code:", req.body.authCode)
-
     let response = await tradeCode(req.body.authCode, req.body.redirect_tail)
-    res.append("access_token", "1111")//response["access_token"]);
+    res.append("access_token", response["access_token"]);
     res.append("expires_in", response["expires_in"]);
     res.append("refresh_token", response["refresh_token"]);
     res.end("Success!");
@@ -91,7 +88,7 @@ router.route('/tradecode').post(async (req, res) => {
 
 
 /* Trade token for user info + refresh */
-router.route("/identifyuser").post(async (req, res) => {
+router.route('/identifyuser').post(async (req, res) => {
     console.log("token", req.body.access_token)
 
     // GET ID
@@ -131,12 +128,12 @@ router.route("/identifyuser").post(async (req, res) => {
 /* */
 async function authUser(req, res) {
     // GET ID
-    site = await fetch("https://discord.com/api/v9/users/@me", {
+   let site = await fetch("https://discord.com/api/v9/users/@me", {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${req.body.access_token}` }
     });
 
-    response = await site.json();
+    let response = await site.json();
 
     const params = new URLSearchParams();
     params.append('client_id', process.env.CLIENT_ID);
@@ -160,30 +157,48 @@ async function authUser(req, res) {
 }
 
 /* Cached values */
+let player_stats = { leaderboard: {}, players: {}, users: {}, totzombies: {}, tothumans: {}, }
+
+update_stores()
+async function update_stores() {
+    player_stats.leaderboard = await profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }])
+    player_stats.players = await profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 })
+    player_stats.users = await profile.find({}, { "name": 1, "_id": 0 })
+    player_stats.totzombies = await profile.find({ "role": "Zombie" }, { "numtags": 1, "_id": 0 })
+    player_stats.tothumans = await profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 })
+}
+
 router.route("/leaderboard").get((_, res) => {
-    profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }]).then(players => res.json(players))
+    res.json(player_stats.leaderboard)
 });
 
 router.route("/players").get((_, res) => {
-    profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 }).then(players => res.json(players))
+    res.json(player_stats.players)
 });
 
 router.route("/users").get((_, res) => {
-    profile.find({}, { "name": 1, "_id": 0 }).then(players => res.json(players))
+    res.json(player_stats.users)
 });
 
 router.route("/totzombies").get((_, res) => {
-    profile.find({ "role": "Zombie" }, { "exposed": 1, "_id": 0 }).then(players => res.json(players))
+    res.json(player_stats.totzombies)
 });
 
 router.route("/tothumans").get((_, res) => {
-    profile.find({ "role": "Human" }, { "exposed": 1, "_id": 0 }).then(players => res.json(players))
+    res.json(player_stats.tothumans)
 });
 
 /* Report page */
 router.route("/tag").post(async (req, res) => {
     try {
         let response = await authUser(req, res);
+
+        if (response == null || response.id == null || response.id == undefined)
+            {
+                res.end("Failed to authenticate!");
+                return;
+            }
+
         let reporter = await profile.findOne({ userID: response.id })
 
         /* Check if the user is authorized to make this tag (mod or zombie). */
@@ -194,6 +209,12 @@ router.route("/tag").post(async (req, res) => {
 
         /* Make the human zombie */
         let human = await profile.findOne({ name: req.body.humanId })
+
+        if (human == null) {
+            res.end("Couldn't indentify human!");
+            return;
+        }
+
         await profile.updateOne({ name: req.body.humanId }, { $set: { role: "Zombie", tagged: true, exposed: true } });
         await updateRole("Zombie", human.userID)
 
@@ -204,7 +225,11 @@ router.route("/tag").post(async (req, res) => {
                 await profile.updateOne({ name: tagger.name }, { $set: { numtags: (tagger.numtags + 1) } });
             }
         }
+
         sendUpdate(req.body.humanId + ` was turned into a Zombie${req.body.zombieId == null ? "!" : ` by ${req.body.zombieId}.`}`)
+
+        // Update stores
+        update_stores()
         res.end("Submit worked!");
     }
     catch {
@@ -215,6 +240,13 @@ router.route("/tag").post(async (req, res) => {
 router.route("/update").post(async (req, res) => {
     try {
         let response = await authUser(req, res);
+
+        if (response == null || response.id == null || response.id == undefined)
+        {
+            res.end("Failed to authenticate!");
+            return;
+        }
+
         let reporter = await profile.findOne({ userID: response.id })
 
         if (!reporter.mod) {
@@ -222,11 +254,16 @@ router.route("/update").post(async (req, res) => {
             return;
         }
 
+        let player = await profile.findOne({ name: req.body.player })
+        if (player == null) {
+            res.end("Failed to identify player!");
+            return;
+        }
+
         /* Update role */
         if (req.body.newRole != null) {
-            let player = await profile.findOne({ name: req.body.player })
             await profile.updateOne({ name: req.body.player }, { $set: { role: req.body.newRole } });
-            updateRole(role.body.newRole, player.userID)
+            //updateRole(role.body.newRole, player.userID)
         }
 
         /* Update name */
@@ -238,6 +275,14 @@ router.route("/update").post(async (req, res) => {
         if (req.body.newTags != null) {
             await profile.updateOne({ name: req.body.player }, { $set: { numtags: req.body.newTags } });
         }
+
+        if (req.body.newLifetags != null) {
+            await profile.updateOne({ name: req.body.player }, { $set: { lifetime: req.body.newLifetags } });
+        }
+
+        // Update stores
+        update_stores()
+
         res.end("Submit worked!");
     }
     catch {
@@ -249,6 +294,13 @@ router.route("/update").post(async (req, res) => {
 router.route("/userupdate").post(async (req, res) => {
     try {
         let response = await authUser(req, res);
+
+        if (response == null || response.id == null || response.id == undefined)
+        {
+            res.end("Failed to authenticate!");
+            return;
+        }
+
         let reporter = await profile.findOne({ userID: response.id })
 
         /* Check if the user is authorized to make this tag (mod or zombie). */
@@ -271,13 +323,16 @@ router.route("/userupdate").post(async (req, res) => {
         if (req.body.registerMe != null) {
             if (reporter.role == "Unregistered") {
                 await profile.updateOne({ userID: response.id }, { $set: { role: "Registered" } });
-                updateRole("Human", response.id)
+                //updateRole("Human", response.id)
             }
         }
 
         if (req.body.newAvatar != null) {
 
         }
+
+        // Update stores
+        update_stores()
 
         res.end("Submit worked!");
     }

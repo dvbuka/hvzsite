@@ -34,7 +34,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api", require("./routes/profileRoute.js"));
-app.use("/auth", require("./routes/authRoute.js"));
 
 if (process.env.DEPLOY_TYPE == "LOCAL" ) {
   app.use(express.static("public"));
