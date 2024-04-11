@@ -75,6 +75,7 @@ async function tradeCode(authCode, redirect_tail) {
     })
 
     let response = await site.json();
+    console.log(response)
     return response;
 }
 
@@ -82,7 +83,7 @@ router.route('/tradecode').post(async (req, res) => {
     console.log("origin auth code:", req.body.authCode)
 
     let response = await tradeCode(req.body.authCode, req.body.redirect_tail)
-    res.append("access_token", response["access_token"]);
+    res.append("access_token", "1111")//response["access_token"]);
     res.append("expires_in", response["expires_in"]);
     res.append("refresh_token", response["refresh_token"]);
     res.end("Success!");
@@ -123,6 +124,7 @@ router.route("/identifyuser").post(async (req, res) => {
     res.append("access_token", response["access_token"]);
     res.append("expires_in", response["expires_in"]);
     res.append("refresh_token", response["refresh_token"]);
+    console.log("response 2", response)
     res.end("Success!");
 });
 

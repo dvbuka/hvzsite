@@ -13,7 +13,6 @@ function Home() {
             if (res.ok) {
                 return res.json()
             }
-            console.log(res.json())
         }).then(jsonRes => newInfo.zombies = jsonRes.length);
 
         await fetch(process.env.REACT_APP_API_BASE + "/api/tothumans").then(res => {
@@ -24,7 +23,7 @@ function Home() {
 
         await fetch(process.env.REACT_APP_API_BASE + "/api/players").then(res => {
             if (res.ok) {
-                return res.json()
+                return  res.json()
             }
         }).then(jsonRes => newInfo.registered = jsonRes.length);
 

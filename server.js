@@ -4,20 +4,22 @@ const path = require('path');
 const cors = require("cors");
 const mongoose = require("mongoose");
 
-app.use(cors());
-app.use(express.json());
-
 const corsOptions = {
-  exposedHeaders: ['access_token', 'expires_in', 'refresh_token', 'username', 'avatar']
+  exposedHeaders: ['access_token', 'expires_in', 'refresh_token', 'username', 'avatar', 'id']
 };
 
 app.use(cors(corsOptions));
+
+app.use(express.json());
+
+app.get('/', (req, res) => res.json("Hello"))
 
 require('dotenv').config()
 
 let dev = false;
 
 // connect to mongoose
+
 mongoose.set('debug', true)
 mongoose.connect(process.env.MONGODB_SRV, {
   useNewUrlParser: true,
@@ -27,6 +29,7 @@ mongoose.connect(process.env.MONGODB_SRV, {
 }).catch((err) => {
   console.log(err);
 })
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -41,6 +44,7 @@ if (process.env.DEPLOY_TYPE == "LOCAL" ) {
     res.sendFile(path.join(__dirname + '/frontend/build/index.html'));
   });
 } 
+
 
 port = process.env.PORT || 3001
 app.listen(port, function () {

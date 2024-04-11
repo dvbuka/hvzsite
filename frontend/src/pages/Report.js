@@ -31,16 +31,18 @@ const Report = ({ discordAuth }) => {
 
         if (code != null) {
             navigate('/report')
-            await axios.post("/api/tradecode", { "authCode": code, "redirect_tail": 'report' }).then(res => {
-                sessionStorage.setItem("access_token", res.headers.access_token)
-                sessionStorage.setItem("expires_in", res.headers.expires_in)
-                sessionStorage.setItem("refresh_token", res.headers.refresh_token)
+            await axios.post("/api/tradecode", { "authCode": code, "redirect_tail": 'report' }).then((res) => {
+                sessionStorage.setItem("access_token", res.headers['access_token'])
+                sessionStorage.setItem("expires_in", res.headers['expires_in'])
+                sessionStorage.setItem("refresh_token", res.headers['refresh_token'])
+                console.log(res.headers['refresh_token'], res.headers['expires_in'])
                 return res
-            }).then(res => axios.post("/api/identifyuser", {
+            })/*.then(res => axios.post("/api/identifyuser", {
                 access_token: res.headers.access_token,
                 expires_in: res.headers.expires_in,
                 refresh_token: res.headers.refresh_token
             })).then(res => {
+                console.log(res.headers.refresh_token, res.headers.expires_in)
                 sessionStorage.setItem("access_token", res.headers.access_token)
                 sessionStorage.setItem("expires_in", res.headers.expires_in)
                 sessionStorage.setItem("refresh_token", res.headers.refresh_token)
@@ -49,7 +51,7 @@ const Report = ({ discordAuth }) => {
                 sessionStorage.setItem("id", res.headers.id)
                 setUser(res.headers.username)
                 console.log(res.headers.username)
-            })
+            })*/
         }
 
         let username = sessionStorage.getItem("username")
