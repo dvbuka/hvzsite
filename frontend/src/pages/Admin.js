@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE
 
-const utils = require('../api_utils.js');
+import trade_code from "../api_utils.js";
 
 const Admin = ({discordAuth}) => {
     let navigate = useNavigate();
@@ -37,7 +37,7 @@ const Admin = ({discordAuth}) => {
         if (code != null) {
             console.log("fetching user from code...")
             navigate('/admin')
-            await utils.trade_code(axios, code, 'admin')}
+            await trade_code(axios, code, 'admin')}
 
         let username = sessionStorage.getItem("username")
         

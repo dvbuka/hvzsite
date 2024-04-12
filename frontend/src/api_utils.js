@@ -1,6 +1,7 @@
 async function trade_code(axios, code, redirect_tail) {
     if (code == null || code == undefined)
         return;
+    
     await axios.post("/api/tradecode", { authCode: code, redirect_tail: redirect_tail }).then(res => {
         console.log("res tradecode", res)
         if (res.headers.access_token != undefined) {
@@ -25,4 +26,4 @@ async function trade_code(axios, code, redirect_tail) {
         console.log(res.headers.username)}})
 }
 
-module.exports = {trade_code};
+export default trade_code;

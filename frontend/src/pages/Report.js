@@ -4,7 +4,7 @@ import { React, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const utils = require('../api_utils.js');
+import trade_code from "../api_utils.js";
 
 const Report = ({ discordAuth }) => {
 
@@ -34,7 +34,7 @@ const Report = ({ discordAuth }) => {
 
         if (code != null) {
             navigate('/report')
-            await utils.trade_code(axios, code, 'report')
+            await trade_code(axios, code, 'report')
         }
 
         let username = sessionStorage.getItem("username")

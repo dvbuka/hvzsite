@@ -4,7 +4,7 @@ import { Button, Card, Form, Image } from "react-bootstrap";
 import { React, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const utils = require('../api_utils.js');
+import trade_code from "../api_utils.js";
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE
 
@@ -31,7 +31,7 @@ const Account = ({ discordAuth }) => {
 
             if (code != null) {
                 navigate('/account')
-                await utils.trade_code(axios, code, 'account')
+                await trade_code(axios, code, 'account')
             }
 
             let username = sessionStorage.getItem("username")
