@@ -72,9 +72,9 @@ const Admin = ({discordAuth}) => {
             axios.post("/api/update", {
                 ...sessionStorage,...inputs}).then(res => {
                 setInfo(res.data)
-                sessionStorage.setItem("access_token", res.headers.access_token)
-                sessionStorage.setItem("expires_in", res.headers.expires_in)
-                sessionStorage.setItem("refresh_token", res.headers.refresh_token)
+                sessionStorage.setItem("access_token", res.headers.accesstoken)
+                sessionStorage.setItem("expires_in", res.headers.expiresin)
+                sessionStorage.setItem("refresh_token", res.headers.refreshtoken)
             })
         }
         else {

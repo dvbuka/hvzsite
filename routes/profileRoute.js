@@ -159,9 +159,9 @@ router.route('/tradecodeidentify').post(async (req, res) => {
     let new_response = await new_site.json();
     console.log("response 2", new_response)
 
-    res.set("access_token", new_response["access_token"])
-    res.set("expires_in", new_response["expires_in"])
-    res.set("refresh_token", new_response["refresh_token"])
+    res.set("accesstoken", new_response["access_token"])
+    res.set("expiresin", new_response["expires_in"])
+    res.set("refreshtoken", new_response["refresh_token"])
     res.set("username", response.username);
     res.set("avatar", response.avatar);
     res.set("id", response.id);
@@ -192,9 +192,9 @@ async function authUser(req, res) {
     })
 
     let refresh_response = await site.json();
-    res.append("access_token", refresh_response["access_token"]);
-    res.append("expires_in", refresh_response["expires_in"]);
-    res.append("refresh_token", refresh_response["refresh_token"]);
+    res.append("accesstoken", refresh_response["access_token"]);
+    res.append("expiresin", refresh_response["expires_in"]);
+    res.append("refreshtoken", refresh_response["refresh_token"]);
 
     return response;
 }
@@ -276,7 +276,7 @@ router.route("/tag").post(async (req, res) => {
         sendUpdate(req.body.humanId + ` was turned into a Zombie${req.body.zombieId == null ? "!" : ` by ${req.body.zombieId}.`}`)
 
         // Update stores
-        update_stores()
+        //update_stores()
         res.end("Submit worked!");
     }
     catch {

@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 
 const corsOptions = {
-  exposedHeaders: ['access_token', 'expires_in', 'refresh_token', 'username', 'avatar', 'id']
+  exposedHeaders: ['accesstoken', 'expiresin', 'refreshtoken', 'username', 'avatar', 'id']
 };
 
 app.use(cors(corsOptions));

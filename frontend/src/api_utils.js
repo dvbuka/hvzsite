@@ -6,9 +6,9 @@ async function trade_code(axios, code, redirect_tail) {
         sessionStorage.setItem("username", res.headers.username)
         sessionStorage.setItem("avatar", res.headers.avatar)
         sessionStorage.setItem("id", res.headers.id)
-        sessionStorage.setItem("access_token", res.headers.access_token)
-        sessionStorage.setItem("expires_in", res.headers.expires_in)
-        sessionStorage.setItem("refresh_token", res.headers.refresh_token)
+        sessionStorage.setItem("access_token", res.headers.accesstoken)
+        sessionStorage.setItem("expires_in", res.headers.expiresin)
+        sessionStorage.setItem("refresh_token", res.headers.refreshtoken)
 
         console.log(res.headers.username)
     })
