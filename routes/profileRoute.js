@@ -128,21 +128,21 @@ router.route('/identifyuser').post(async (req, res) => {
 /* Trade and identify */
 router.route('/tradecodeidentify').post(async (req, res) => {
     console.log("origin auth code:", req.body.authCode)
-    let response = await tradeCode(req.body.authCode, req.body.redirect_tail)
+    let traded_code = await tradeCode(req.body.authCode, req.body.redirect_tail)
 
-    let refresh_token = response["refresh_token"]
-    
+    let refresh_token = traded_code["refresh_token"]
+
     // GET ID
     let site = await fetch("https://discord.com/api/v9/users/@me", {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${response["access_token"]}` }
+            headers: { 'Authorization': `Bearer ${traded_code["access_token"]}` }
     });
     response = await site.json();
     console.log("response", response)
     
-    res.append("username", response.username);
-    res.append("avatar", response.avatar);
-    res.append("id", response.id);
+    res.set("username", response.username);
+    res.set("avatar", response.avatar);
+    res.set("id", response.id);
 
     // REFRESH
     const params = new URLSearchParams();
@@ -151,20 +151,20 @@ router.route('/tradecodeidentify').post(async (req, res) => {
     params.append('grant_type', 'refresh_token');
     params.append('refresh_token', refresh_token);
 
-    site = await fetch("https://discord.com/api/oauth2/token", {
+    let new_site = await fetch("https://discord.com/api/oauth2/token", {
         'method': 'POST',
         'body': params,
         'headers':
             { 'Content-type': 'application/x-www-form-urlencoded' },
     })
 
-    response = await site.json();
-    res.append("access_token", response["access_token"]);
-    res.append("expires_in", response["expires_in"]);
-    res.append("refresh_token", response["refresh_token"]);
-    console.log("response 2", response)
+    let new_response = await new_site.json();
+    console.log("response 2", new_response)
 
-    res.end("Success!");
+    res.set("access_token", new_response["access_token"])
+    res.set("expires_in", new_response["expires_in"])
+    res.set("refresh_token", new_response["refresh_token"])
+    res.end("Success!")
 })
 
 /* */
