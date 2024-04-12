@@ -169,23 +169,27 @@ async function update_stores() {
 }
 
 router.route("/leaderboard").get((_, res) => {
-    res.json(player_stats.leaderboard)
+    profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }]).then(ret => res.json(ret))
+    //res.json(player_stats.leaderboard).catch()
 });
 
 router.route("/players").get((_, res) => {
-    res.json(player_stats.players)
+    profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 }).then(ret => res.json(ret))
 });
 
 router.route("/users").get((_, res) => {
-    res.json(player_stats.users)
+    profile.find({}, { "name": 1, "_id": 0 }).then(ret => res.json(ret))
+    //res.json(player_stats.users)
 });
 
 router.route("/totzombies").get((_, res) => {
-    res.json(player_stats.totzombies)
+    //res.json(player_stats.totzombies)
+    profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
 });
 
 router.route("/tothumans").get((_, res) => {
-    res.json(player_stats.tothumans)
+    //res.json(player_stats.tothumans)
+    profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
 });
 
 /* Report page */
