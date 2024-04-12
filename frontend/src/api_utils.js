@@ -3,12 +3,13 @@ async function trade_code(axios, code, redirect_tail) {
         return;
 
     await axios.post("/api/tradecodeidentify", { authCode: code, redirect_tail: redirect_tail }).then(function (res) {
-        sessionStorage.setItem("access_token", res.headers.access_token)
-        sessionStorage.setItem("expires_in", res.headers.expires_in)
-        sessionStorage.setItem("refresh_token", res.headers.refresh_token)
         sessionStorage.setItem("username", res.headers.username)
         sessionStorage.setItem("avatar", res.headers.avatar)
         sessionStorage.setItem("id", res.headers.id)
+        sessionStorage.setItem("access_token", res.headers.access_token)
+        sessionStorage.setItem("expires_in", res.headers.expires_in)
+        sessionStorage.setItem("refresh_token", res.headers.refresh_token)
+
         console.log(res.headers.username)
     })
 

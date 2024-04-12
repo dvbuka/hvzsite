@@ -140,9 +140,7 @@ router.route('/tradecodeidentify').post(async (req, res) => {
     response = await site.json();
     console.log("response", response)
     
-    res.set("username", response.username);
-    res.set("avatar", response.avatar);
-    res.set("id", response.id);
+
 
     // REFRESH
     const params = new URLSearchParams();
@@ -164,6 +162,9 @@ router.route('/tradecodeidentify').post(async (req, res) => {
     res.set("access_token", new_response["access_token"])
     res.set("expires_in", new_response["expires_in"])
     res.set("refresh_token", new_response["refresh_token"])
+    res.set("username", response.username);
+    res.set("avatar", response.avatar);
+    res.set("id", response.id);
     res.end("Success!")
 })
 
