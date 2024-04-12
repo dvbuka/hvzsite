@@ -1,9 +1,8 @@
 {
-    "rewrites":  [
-      {"source": "/(.*)", "destination": "/"}
-    ],
-    "headers" : [
-      {
-        "X-Robots-Tag" : "noindex"
-      }]
-  }
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
