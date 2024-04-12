@@ -125,6 +125,48 @@ router.route('/identifyuser').post(async (req, res) => {
     res.end("Success!");
 });
 
+/* Trade and identify */
+router.route('/tradecodeidentify').post(async (req, res) => {
+    console.log("origin auth code:", req.body.authCode)
+    let response = await tradeCode(req.body.authCode, req.body.redirect_tail)
+
+    let refresh_token = response["refresh_token"]
+    
+    // GET ID
+    let site = await fetch("https://discord.com/api/v9/users/@me", {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${response["access_token"]}` }
+    });
+    response = await site.json();
+    console.log("response", response)
+    
+    res.append("username", response.username);
+    res.append("avatar", response.avatar);
+    res.append("id", response.id);
+
+    // REFRESH
+    const params = new URLSearchParams();
+    params.append('client_id', process.env.CLIENT_ID);
+    params.append('client_secret', process.env.CLIENT_SECRET);
+    params.append('grant_type', 'refresh_token');
+    params.append('refresh_token', refresh_token);
+
+    site = await fetch("https://discord.com/api/oauth2/token", {
+        'method': 'POST',
+        'body': params,
+        'headers':
+            { 'Content-type': 'application/x-www-form-urlencoded' },
+    })
+
+    response = await site.json();
+    res.append("access_token", response["access_token"]);
+    res.append("expires_in", response["expires_in"]);
+    res.append("refresh_token", response["refresh_token"]);
+    console.log("response 2", response)
+
+    res.end("Success!");
+})
+
 /* */
 async function authUser(req, res) {
     // GET ID

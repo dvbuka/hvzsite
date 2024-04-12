@@ -1,8 +1,18 @@
 async function trade_code(axios, code, redirect_tail) {
     if (code == null || code == undefined)
         return;
-    
-    await axios.post("/api/tradecode", { authCode: code, redirect_tail: redirect_tail }).then(res => {
+
+    await axios.post("/api/tradecodeidentify", { authCode: code, redirect_tail: redirect_tail }).then(res => {
+        sessionStorage.setItem("access_token", res.headers.access_token)
+        sessionStorage.setItem("expires_in", res.headers.expires_in)
+        sessionStorage.setItem("refresh_token", res.headers.refresh_token)
+        sessionStorage.setItem("username", res.headers.username)
+        sessionStorage.setItem("avatar", res.headers.avatar)
+        sessionStorage.setItem("id", res.headers.id)
+        console.log(res.headers.username)
+    })
+
+    /*await axios.post("/api/tradecode", { authCode: code, redirect_tail: redirect_tail }).then(res => {
         console.log("res tradecode", res)
         if (res.headers.access_token != undefined) {
         sessionStorage.setItem("access_token", res.headers.access_token)
@@ -23,7 +33,7 @@ async function trade_code(axios, code, redirect_tail) {
         sessionStorage.setItem("username", res.headers.username)
         sessionStorage.setItem("avatar", res.headers.avatar)
         sessionStorage.setItem("id", res.headers.id)
-        console.log(res.headers.username)}})
+        console.log(res.headers.username)}})*/
 }
 
 export default trade_code;
