@@ -213,44 +213,44 @@ async function update_stores() {
 }
 
 router.route("/leaderboard").get((_, res) => {
-    if (player_stats.leaderboard != null)
-        res.json(player_stats.leaderboard)
-    else {
+    //if (player_stats.leaderboard != null)
+    //    res.json(player_stats.leaderboard)
+    //else {
         profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }]).then(ret => res.json(ret))
-    }
+    //}
 });
 
 router.route("/players").get((_, res) => {
-    if (player_stats.players != null)
-        res.json(player_stats.players)
-    else {
+    //if (player_stats.players != null)
+    //    res.json(player_stats.players)
+    //else {
         profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 }).then(ret => res.json(ret))
-    }
+    //}
 });
 
 router.route("/users").get((_, res) => {
-    if (player_stats.users != null)
-        res.json(player_stats.users)
-    else {
+    //if (player_stats.users != null)
+    //    res.json(player_stats.users)
+    //else {
         profile.find({}, { "name": 1, "_id": 0 }).then(ret => res.json(ret))
-    }
+    //}
 });
 
 router.route("/totzombies").get((_, res) => {
-    if (player_stats.totzombies != null)
-        res.json(player_stats.totzombies)
-    else {
+    //if (player_stats.totzombies != null)
+    //    res.json(player_stats.totzombies)
+    //else {
         profile.find({ "role": "Zombie" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
-    }
+    //}
 
 });
 
 router.route("/tothumans").get((_, res) => {
-    if (player_stats.tothumans != null)
-        res.json(player_stats.tothumans)
-    else {
+    //if (player_stats.tothumans != null)
+    //    res.json(player_stats.tothumans)
+    //else {
         profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
-    }
+    //}
 });
 
 /* Report page */
