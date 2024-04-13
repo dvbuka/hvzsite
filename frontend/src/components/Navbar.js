@@ -23,7 +23,7 @@ function MyNavbar() {
                         <Nav.Link href="/leaderboard">Leaderboard</Nav.Link>
                         <Nav.Link href="/report">Report an Infection</Nav.Link>
                         <Nav.Link href="/account">Account</Nav.Link>
-                        <Nav.Link href="/dnc" align="right">Davis Nerf Club</Nav.Link>
+                        <Nav.Link href="/dnc">Davis Nerf Club</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

@@ -134,12 +134,12 @@ router.route('/tradecodeidentify').post(async (req, res) => {
 
     // GET ID
     let site = await fetch("https://discord.com/api/v9/users/@me", {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${traded_code["access_token"]}` }
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${traded_code["access_token"]}` }
     });
     response = await site.json();
     console.log("response", response)
-    
+
 
 
     // REFRESH
@@ -171,7 +171,7 @@ router.route('/tradecodeidentify').post(async (req, res) => {
 /* */
 async function authUser(req, res) {
     // GET ID
-   let site = await fetch("https://discord.com/api/v9/users/@me", {
+    let site = await fetch("https://discord.com/api/v9/users/@me", {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${req.body.access_token}` }
     });
@@ -203,36 +203,54 @@ async function authUser(req, res) {
 let player_stats = { leaderboard: {}, players: {}, users: {}, totzombies: {}, tothumans: {}, }
 
 update_stores()
+
 async function update_stores() {
-    player_stats.leaderboard = await profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }])
-    player_stats.players = await profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 })
-    player_stats.users = await profile.find({}, { "name": 1, "_id": 0 })
-    player_stats.totzombies = await profile.find({ "role": "Zombie" }, { "numtags": 1, "_id": 0 })
-    player_stats.tothumans = await profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 })
+    profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }]).then(ret => player_stats.leaderboard = ret)
+    profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 }).then(ret => player_stats.players = ret)
+    profile.find({}, { "name": 1, "_id": 0 }).then(ret => player_stats.users = ret)
+    profile.find({ "role": "Zombie" }, { "numtags": 1, "_id": 0 }).then(ret => player_stats.totzombies = ret)
+    profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 }).then(ret => player_stats.tothumans = ret)
 }
 
 router.route("/leaderboard").get((_, res) => {
-    profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }]).then(ret => res.json(ret))
-    //res.json(player_stats.leaderboard).catch()
+    if (player_stats.leaderboard != null)
+        res.json(player_stats.leaderboard)
+    else {
+        profile.aggregate([{ $match: { role: "Zombie", exposed: true } }, { $sort: { numtags: -1 } }]).then(ret => res.json(ret))
+    }
 });
 
 router.route("/players").get((_, res) => {
-    profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 }).then(ret => res.json(ret))
+    if (player_stats.players != null)
+        res.json(player_stats.players)
+    else {
+        profile.find({ $or: [{ "role": "Zombie" }, { "role": "Human" }, { "role": "Registered" }] }, { "name": 1, "_id": 0, "userID": 1 }).then(ret => res.json(ret))
+    }
 });
 
 router.route("/users").get((_, res) => {
-    profile.find({}, { "name": 1, "_id": 0 }).then(ret => res.json(ret))
-    //res.json(player_stats.users)
+    if (player_stats.users != null)
+        res.json(player_stats.users)
+    else {
+        profile.find({}, { "name": 1, "_id": 0 }).then(ret => res.json(ret))
+    }
 });
 
 router.route("/totzombies").get((_, res) => {
-    //res.json(player_stats.totzombies)
-    profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
+    if (player_stats.totzombies != null)
+        res.json(player_stats.totzombies)
+    else {
+        profile.find({ "role": "Zombie" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
+    }
+
 });
 
 router.route("/tothumans").get((_, res) => {
-    //res.json(player_stats.tothumans)
-    profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
+    if (player_stats.tothumans != null)
+        res.json(player_stats.tothumans)
+    else {
+        profile.find({ "role": "Human" }, { "numtags": 1, "_id": 0 }).then(ret => res.json(ret))
+    }
 });
 
 /* Report page */
@@ -240,11 +258,10 @@ router.route("/tag").post(async (req, res) => {
     try {
         let response = await authUser(req, res);
 
-        if (response == null || response.id == null || response.id == undefined)
-            {
-                res.end("Failed to authenticate!");
-                return;
-            }
+        if (response == null || response.id == null || response.id == undefined) {
+            res.end("Failed to authenticate!");
+            return;
+        }
 
         let reporter = await profile.findOne({ userID: response.id })
 
@@ -276,7 +293,8 @@ router.route("/tag").post(async (req, res) => {
         sendUpdate(req.body.humanId + ` was turned into a Zombie${req.body.zombieId == null ? "!" : ` by ${req.body.zombieId}.`}`)
 
         // Update stores
-        //update_stores()
+        update_stores()
+        
         res.end("Submit worked!");
     }
     catch {
@@ -288,8 +306,7 @@ router.route("/update").post(async (req, res) => {
     try {
         let response = await authUser(req, res);
 
-        if (response == null || response.id == null || response.id == undefined)
-        {
+        if (response == null || response.id == null || response.id == undefined) {
             res.end("Failed to authenticate!");
             return;
         }
@@ -342,8 +359,7 @@ router.route("/userupdate").post(async (req, res) => {
     try {
         let response = await authUser(req, res);
 
-        if (response == null || response.id == null || response.id == undefined)
-        {
+        if (response == null || response.id == null || response.id == undefined) {
             res.end("Failed to authenticate!");
             return;
         }
